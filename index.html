@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yeni Yıl Sayacı</title>
+  <link rel="stylesheet" href="styles.css">
+<style type="text/css" id="dcoder_stylesheet">body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to bottom, #000428, #004e92);
+  color: white;
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.countdown-container {
+  text-align: center;
+}
+
+#countdown-title {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.countdown {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none;
+}
+
+#new-year-message {
+  text-align: center;
+  animation: lightShow 3s infinite;
+}
+
+#new-year-message h1 {
+  font-size: 4rem;
+  color: #FFD700;
+  text-shadow: 0 0 20px #FFD700, 0 0 30px #FF4500;
+}
+
+#new-year-message p {
+  font-size: 1.5rem;
+}
+
+@keyframes lightShow {
+  0%, 100% {
+    text-shadow: 0 0 20px #FFD700, 0 0 30px #FF4500;
+  }
+  50% {
+    text-shadow: 0 0 30px #00FF00, 0 0 50px #1E90FF;
+  }
+}</style></head>
+<body>
+  <div class="countdown-container">
+    <h1 id="current-time-title">Şu Anki Saat:</h1>
+    <div id="current-time" class="current-time"></div>
+    <h1 id="countdown-title">yeni yıla kalan süre</h1>
+    <div id="countdown" class="countdown"></div>
+  </div>
+  <div id="new-year-message" class="hidden">
+    <h1>🎉 Hoşgeldin Yeni Yıl! 🎉</h1>
+    <p>Mutlu, sağlıklı ve başarılı bir yıl dileriz!</p>
+  </div>
+
+  <script src="script.js"></script>
+
+<script type="text/javascript" id="dcoder_script">const currentTimeElement = document.getElementById("current-time");
+const countdownElement = document.getElementById("countdown");
+const newYearMessage = document.getElementById("new-year-message");
+const countdownTitle = document.getElementById("countdown-title");
+
+async function fetchCurrentTime() {
+  // Türkiye saatini API'den çekiyoruz
+  const response = await fetch("http://worldtimeapi.org/api/timezone/Europe/Istanbul");
+  const data = await response.json();
+  return new Date(data.datetime); // ISO formatını Date objesine dönüştür
+}
+
+function updateCurrentTime() {
+  fetchCurrentTime().then((now) => {
+    const formattedTime = now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    currentTimeElement.textContent = formattedTime;
+  });
+}
+
+function startCountdown() {
+  fetchCurrentTime().then((now) => {
+    const newYear = new Date(now.getFullYear() + 1, 0, 1, 0, 0, 0); // Yeni yıl tarihi
+
+    const timer = setInterval(() => {
+      const timeLeft = newYear - now;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        countdownElement.style.display = "none";
+        countdownTitle.style.display = "none";
+        newYearMessage.classList.remove("hidden");
+      } else {
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        countdownElement.innerHTML = `
+          ${days} Gün ${hours} Saat ${minutes} Dakika ${seconds} Saniye
+        `;
+      }
+    }, 1000);
+  });
+}
+
+// Türkiye saatini her saniye güncelle
+setInterval(updateCurrentTime, 1);
+
+// Geri sayımı başlat
+startCountdown();</script></body></html>
